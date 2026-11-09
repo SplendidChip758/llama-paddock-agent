@@ -12,6 +12,7 @@
  *   - service restart / status and recent journal logs
  *   - the GPU check: GPU lines from Ollama's log since it started, the nvidia_uvm module, and reloading it
  *   - when Ollama started model runners, for the dashboard's reload warnings
+ *   - updating itself to the newest release, through the installer's updater
  *
  * Every endpoint except /health needs `Authorization: Bearer <PADDOCK_AGENT_TOKEN>`.
  * The port serves HTTPS with the agent's own key, and plain HTTP unless PADDOCK_AGENT_HTTP=off.
@@ -692,6 +693,44 @@ function listenBoth(onRequest, port, bind, label) {
   return tls?.fingerprint ?? null;
 }
 
+// ------------------------------------------------------------------ self-update
+// The dashboard updates the agent through the updater the installer writes, which checks the release
+// against its SHA256SUMS, keeps the token and key, and restarts this service. It runs as its own
+// transient unit so it outlives this process. A failed run stays loaded, so GET /update can show why.
+const UPDATER = "/usr/local/bin/update-llama-paddock-agent";
+const UPDATE_UNIT = "llama-paddock-agent-update.service";
+// the updater's argument for each channel; the dashboard can't pass a tag, which would pin the agent to it
+const UPDATE_CHANNELS = { stable: "latest", dev: "dev" };
+
+const canSelfUpdate = () => DRY_RUN || fs.existsSync(UPDATER);
+
+async function updateStatus() {
+  if (DRY_RUN) return { state: "idle", dry_run: true };
+  const r = await run("systemctl", ["show", UPDATE_UNIT, "-p", "ActiveState", "-p", "Result"]);
+  const props = Object.fromEntries(r.stdout.split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
+  const active = props.ActiveState || "inactive";
+  // a successful run unloads itself, so it looks the same as no run at all
+  const state = active === "active" || active === "activating" ? "running" : active === "failed" ? "failed" : "idle";
+  if (state !== "failed") return { state };
+  const log = await run("journalctl", ["-u", UPDATE_UNIT, "-n", "40", "-o", "cat", "--no-pager"]);
+  return { state, result: props.Result || null, log: log.stdout.split("\n").filter(Boolean) };
+}
+
+async function startUpdate(body) {
+  const name = body?.channel ?? "stable";
+  const channel = Object.hasOwn(UPDATE_CHANNELS, name) ? UPDATE_CHANNELS[name] : null;
+  if (!channel) throw httpError(400, 'channel must be "stable" or "dev"');
+  if (!canSelfUpdate()) throw httpError(409, `${UPDATER} is missing: run the agent installer on this host once to add it`);
+  if (DRY_RUN) return { ok: true, dry_run: true, channel: name };
+  if ((await updateStatus()).state === "running") throw httpError(409, "an update is already running");
+  // a failed earlier run keeps the unit name taken
+  await run("systemctl", ["reset-failed", UPDATE_UNIT]);
+  const r = await run("systemd-run", [`--unit=${UPDATE_UNIT}`, "--description=llama-paddock agent update", UPDATER, channel], 30_000);
+  if (r.code !== 0) throw httpError(500, `could not start the updater: ${r.stderr.trim() || `systemd-run exited with ${r.code}`}`);
+  console.log(`updating to the newest ${name} release (journalctl -u ${UPDATE_UNIT})`);
+  return { ok: true, channel: name };
+}
+
 // ------------------------------------------------------------------ HTTP
 function httpError(status, detail) {
   return Object.assign(new Error(detail), { status });
@@ -716,10 +755,10 @@ async function readJson(req) {
 }
 
 const routes = {
-  "GET /health": async () => ({ ok: true, version: VERSION, protocol: PROTOCOL, platform: "linux", hostname: os.hostname(), fingerprint: FINGERPRINT }),
+  "GET /health": async () => ({ ok: true, version: VERSION, protocol: PROTOCOL, platform: "linux", hostname: os.hostname(), fingerprint: FINGERPRINT, self_update: canSelfUpdate() }),
   "GET /stats": async () => {
     const [nvidia, service] = await Promise.all([nvidiaStats(), serviceStatus()]);
-    return { ts: Date.now() / 1000, version: VERSION, protocol: PROTOCOL, platform: "linux", fingerprint: FINGERPRINT, system: systemStats(), nvidia, service };
+    return { ts: Date.now() / 1000, version: VERSION, protocol: PROTOCOL, platform: "linux", fingerprint: FINGERPRINT, self_update: canSelfUpdate(), system: systemStats(), nvidia, service };
   },
   "GET /env": async () => {
     const st = readEnvState();
@@ -741,6 +780,8 @@ const routes = {
     return { ts: Date.now() / 1000, platform: "linux", log, nvidia_uvm };
   },
   "POST /gpu/reload-uvm": async () => reloadUvm(),
+  "GET /update": async () => updateStatus(),
+  "POST /update": async (req) => startUpdate(await readJson(req)),
   "GET /runner-starts": async (_req, url) => {
     const now = Date.now() / 1000;
     const since = Math.max(now - 86400, Math.min(Number(url.searchParams.get("since")) || now - 3600, now));

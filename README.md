@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="logo/banner-dark.svg">
-    <img alt="llama-paddock" src="logo/banner-light.svg" width="418">
+    <img alt="llama-paddock-agent" src="logo/banner-light.svg" width="552">
   </picture>
 </p>
 

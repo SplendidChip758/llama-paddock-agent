@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges">
+  <title>llama-paddock-agent</title>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="14" fill="#151d29" stroke="#223044"/>
+  <g transform="translate(16 19) scale(2)">
+    <path fill="#45d6ae" fill-rule="evenodd" d="M7 0h1v2h-1zM9 0h1v2h-1zM7 2h5v2h-5zM9 3h1v1h-1zM8 4h3v1h-3zM8 5h2v3h-2zM1 8h9v1h-9zM0 9h10v1h-10zM1 10h9v1h-9zM1 11h1v2h-1zM3 11h1v2h-1zM7 11h1v2h-1zM9 11h1v2h-1z"/>
+    <path fill="#61a5fa" d="M12 1h1v1h-1zM13 2h1v2h-1zM12 4h1v1h-1zM14 0h1v1h-1zM15 1h1v4h-1zM14 5h1v1h-1z"/>
+  </g>
+</svg>

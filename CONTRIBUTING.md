@@ -56,4 +56,4 @@ Branch from `dev` and open the PR against `dev`; it is squash-merged, so its tit
 
 ## How a release happens
 
-On a push to `main` or `dev` that changes the agent, the release workflow runs semantic-release (`.releaserc.json`). It stamps the version into the agent, updates `CHANGELOG.md`, tags the commit and publishes a GitHub release with `paddock-agent-linux.mjs`, `llama-paddock-agent.service` and `SHA256SUMS`. llama-paddock's `install/agent.sh` downloads from those releases and checks the files against `SHA256SUMS`.
+On a push to `main` or `dev` that changes the agent, the release workflow runs semantic-release (`.releaserc.json`). It stamps the version into the agent, updates `CHANGELOG.md`, tags the commit and publishes a GitHub release with `llama-paddock-agent-linux.tar.gz` and `SHA256SUMS` (`.github/scripts/prepare-release.sh` builds them). llama-paddock's `install/agent.sh` fetches the agent and its unit from this repository at the release's tag and checks them against the files listed in `SHA256SUMS`, falling back to the tarball. Keep the paths in the tarball and in `SHA256SUMS` as they are, since the installer looks them up by name.

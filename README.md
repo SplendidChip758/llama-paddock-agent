@@ -41,7 +41,7 @@ For Windows PCs, use the [Windows agent](https://github.com/SplendidChip758/llam
 
 Install and update the agent as the [Linux agent docs](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/agent-linux.md) describe, with the one-liner from llama-paddock's `install/agent.sh`. It downloads the agent from this repository's releases and checks it against `SHA256SUMS`.
 
-Every release has `paddock-agent-linux.mjs`, `llama-paddock-agent.service` and `SHA256SUMS`. Releases up to 0.10.0-dev.1 also have the Windows agent, which now releases from llama-paddock-win-agent.
+Every release has `llama-paddock-agent-linux.tar.gz` (the agent and its systemd unit in `llama-paddock-agent/`) and `SHA256SUMS`, which lists the tarball and the files in it. The installer takes those files from this repository at the release's tag, checked against `SHA256SUMS`, and falls back to the tarball. Releases up to 0.10.0-dev.2 have `paddock-agent-linux.mjs` and `llama-paddock-agent.service` instead; up to 0.10.0-dev.1 also the Windows agent, which now releases from llama-paddock-win-agent.
 
 ## Versions and the protocol
 

@@ -16,21 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # the oldest Node the agents support
+      # the oldest Node the agent supports
       - uses: actions/setup-node@v7
         with:
           node-version: 18.15
 
-      - name: Agents parse
-        run: |
-          node --check linux/paddock-agent.mjs
-          node --check windows/paddock-agent.mjs
+      - name: Agent parses
+        run: node --check linux/paddock-agent.mjs
 
       - name: Release script parses
         run: bash -n .github/scripts/prepare-release.sh
 
       # The dashboard tells which agents it can use from /health and /stats, so
-      # both have to answer with the version and protocol on any change.
+      # the agent has to answer with the version and protocol on any change.
       - name: Linux agent answers
         run: |
           PADDOCK_AGENT_TOKEN=ci-token PADDOCK_DRY_RUN=1 PADDOCK_AGENT_PORT=11435 \

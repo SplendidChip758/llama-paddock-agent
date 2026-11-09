@@ -1,6 +1,6 @@
 <!--
 PR title = the squash-merge commit = the changelog entry, so it must be a
-Conventional Commit, e.g. "feat(linux): report the GPU's fan speed".
+Conventional Commit, e.g. "feat: report the GPU's fan speed".
 See CONTRIBUTING.md. Open PRs against `dev`, not `main`.
 -->
 
@@ -10,8 +10,8 @@ See CONTRIBUTING.md. Open PRs against `dev`, not `main`.
 
 ## Area
 
-- [ ] Linux agent
-- [ ] Windows agent
+- [ ] Agent
+- [ ] systemd unit
 - [ ] CI / release
 - [ ] Docs only
 
@@ -23,7 +23,7 @@ See CONTRIBUTING.md. Open PRs against `dev`, not `main`.
 
 - [ ] PR title is a valid Conventional Commit
 - [ ] Targets `dev` (or `main` for an urgent hotfix)
-- [ ] `node --check` passes for both agents
-- [ ] Both agents' API kept in step, and the simulated agent in llama-paddock updated if the API changed (PR: )
+- [ ] `node --check linux/paddock-agent.mjs` passes
+- [ ] API kept in step with the Windows agent (llama-paddock-win-agent PR: ) and the simulated agent in llama-paddock (PR: ), if the API changed
 - [ ] `PROTOCOL` unchanged, or raised with the maintainer's agreement
 - [ ] No tokens, passwords or personal hostnames/IPs in code, logs or screenshots

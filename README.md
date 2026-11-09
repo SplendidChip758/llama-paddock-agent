@@ -15,7 +15,7 @@
   <a href="https://ollama.com"><img alt="Ollama" src="https://img.shields.io/badge/Ollama-compatible-151d29?style=flat-square&logo=ollama&logoColor=white"></a>
   <a href="#llama-paddock-agent"><img alt="Node.js" src="https://img.shields.io/badge/Node.js-%E2%89%A518.15-151d29?style=flat-square&logo=nodedotjs&logoColor=white"></a>
   <a href="#llama-paddock-agent"><img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-151d29?style=flat-square"></a>
-  <a href="#install"><img alt="Platforms" src="https://img.shields.io/badge/hosts-Linux%20%7C%20Windows-151d29?style=flat-square"></a>
+  <a href="#install"><img alt="Platform: Linux" src="https://img.shields.io/badge/host-Linux-151d29?style=flat-square"></a>
   <a href="#versions-and-the-protocol"><img alt="Agent protocol 1" src="https://img.shields.io/badge/protocol-1-151d29?style=flat-square"></a>
 </p>
 
@@ -24,33 +24,28 @@
   <a href="#install">Install</a> ·
   <a href="https://github.com/SplendidChip758/llama-paddock/blob/main/docs/README.md">Documentation</a> ·
   <a href="https://github.com/SplendidChip758/llama-paddock">Dashboard</a> ·
+  <a href="https://github.com/SplendidChip758/llama-paddock-win-agent">Windows agent</a> ·
   <a href="https://github.com/SplendidChip758/llama-paddock/blob/main/ROADMAP.md">Roadmap</a> ·
   <a href="https://github.com/SplendidChip758/llama-paddock/issues">Issues</a>
 </p>
 
 ## llama-paddock agent
 
-The host agents for [llama-paddock](https://github.com/SplendidChip758/llama-paddock), a self-hosted dashboard for a fleet of Ollama hosts. An agent runs on each Ollama host and gives the dashboard what Ollama's own API doesn't: system and GPU stats, Ollama's environment and service, its log, and the GPU check.
+The Linux host agent for [llama-paddock](https://github.com/SplendidChip758/llama-paddock), a self-hosted dashboard for a fleet of Ollama hosts. It runs on each Linux Ollama host and gives the dashboard what Ollama's own API doesn't: system and GPU stats, Ollama's environment and service, its log, and the GPU check.
 
-| Path | Runs as | Needs |
-|---|---|---|
-| `linux/paddock-agent.mjs` | systemd service (`linux/llama-paddock-agent.service`), as root | Node.js 18.15+ |
-| `windows/paddock-agent.mjs` | Scheduled Task at logon, in your session (`windows/install.ps1`) | Node.js 18.15+ |
+It runs as a root systemd service (`linux/llama-paddock-agent.service`) and is one file of plain Node.js (18.15+) with no dependencies, `linux/paddock-agent.mjs`. It serves its HTTP API on port 11435, over HTTPS with its own key and, unless turned off, plain HTTP.
 
-Each agent is one file of plain Node.js with no dependencies. Both serve the same HTTP API on port 11435, over HTTPS with their own key and, unless turned off, plain HTTP.
+For Windows PCs, use the [Windows agent](https://github.com/SplendidChip758/llama-paddock-win-agent): same API, its own repository and releases.
 
 ## Install
 
-Install and update agents as the llama-paddock docs describe. The installers download them from this repository's releases:
+Install and update the agent as the [Linux agent docs](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/agent-linux.md) describe, with the one-liner from llama-paddock's `install/agent.sh`. It downloads the agent from this repository's releases and checks it against `SHA256SUMS`.
 
-- **Linux:** [Linux agent](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/agent-linux.md), with the one-liner from llama-paddock's `install/agent.sh`
-- **Windows:** [Windows agent](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/agent-windows.md), from `llama-paddock-agent-windows.zip` in the [latest release](https://github.com/SplendidChip758/llama-paddock-agent/releases/latest)
-
-Every release has `paddock-agent-linux.mjs`, `llama-paddock-agent.service`, `paddock-agent-windows.mjs`, `llama-paddock-agent-windows.zip` and `SHA256SUMS`.
+Every release has `paddock-agent-linux.mjs`, `llama-paddock-agent.service` and `SHA256SUMS`. Releases up to 0.10.0-dev.1 also have the Windows agent, which now releases from llama-paddock-win-agent.
 
 ## Versions and the protocol
 
-Agents are released on their own, so an agent's version says nothing about which dashboards it works with. That's the **protocol**: a whole number in `GET /health` and `GET /stats`. It only goes up when the API changes in a way older dashboards can't follow, and each dashboard supports a range of protocols. See [Agent protocol](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/api.md#agent-protocol) for the API and how the dashboard treats an agent outside its range.
+The agent is released on its own, apart from the dashboard and the Windows agent, so a Linux-only fix ships without a new Windows agent. Its version says nothing about which dashboards it works with. That's the **protocol**: a whole number in `GET /health` and `GET /stats`, shared by both agents. It only goes up when the API changes in a way older dashboards can't follow, and each dashboard supports a range of protocols. See [Agent protocol](https://github.com/SplendidChip758/llama-paddock/blob/main/docs/api.md#agent-protocol) for the API and how the dashboard treats an agent outside its range.
 
 Releases from `main` are stable (`vX.Y.Z`). Releases from `dev` are prereleases (`vX.Y.Z-dev.N`), installed with `PADDOCK_VERSION=dev`.
 

@@ -1,5 +1,5 @@
 ---
-description: "How to write commit messages: Conventional Commits, read by semantic-release to version and release the llama-paddock agents"
+description: "How to write commit messages: Conventional Commits, read by semantic-release to version and release the llama-paddock Linux agent"
 ---
 
 # Commit messages
@@ -43,7 +43,7 @@ Pick the type by what users notice, not by which files changed.
 
 ## Scopes
 
-Optional, but use one when only one agent changes: `linux`, `windows`. Also `ci`, `docs`.
+Optional, but use one when it fits: `service` (the systemd unit), `ci`, `docs`. The Windows agent lives in [llama-paddock-win-agent](https://github.com/SplendidChip758/llama-paddock-win-agent).
 
 ## Breaking changes
 
@@ -53,15 +53,15 @@ Breaking is reserved for upgrades that need the user to do something by hand, su
 
 ## Never
 
-- Never edit `CHANGELOG.md` or the agents' `VERSION`. The release workflow writes them.
+- Never edit `CHANGELOG.md` or the agent's `VERSION`. The release workflow writes them.
 - Never put tokens, passwords or personal hostnames/IPs in a commit message.
 
 ## Examples
 
 ```
-feat(linux): report the GPU's fan speed
-fix(windows): restart Ollama when the tray app isn't running
+feat: report the GPU's fan speed
+fix(service): restart the agent when it exits
 perf: read /proc once per stats request
 docs: describe PADDOCK_AGENT_ENV_ALLOW
-ci: run the agents on Node 18.15
+ci: run the agent on Node 18.15
 ```

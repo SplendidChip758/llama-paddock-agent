@@ -378,7 +378,7 @@ async function putEnv(body) {
 // Ollama's log since its last start (discovery at startup, CUDA/ROCm errors later), and on Linux the
 // nvidia_uvm module, which CUDA needs and which a suspend and resume can break. The dashboard
 // decides what the lines mean, so newer Ollama wording only needs a dashboard update.
-// Keep GPU_LOG_RE and gpuLogLines() the same in both agents.
+// Keep GPU_LOG_RE and gpuLogLines() the same in the Windows agent (llama-paddock-win-agent).
 const GPU_LOG_RE = /cuda|cudart|nvcuda|nvml|nvidia|rocm|\bhip\b|amdgpu|gpu|vram|inference compute|offload|library=/i;
 const GPU_LOG_KEEP = 150;
 
@@ -451,7 +451,7 @@ async function reloadUvm() {
 // ------------------------------------------------------------------ model loads
 // Ollama logs "llama runner started in N seconds" once per model load. The dashboard only sees
 // loads that last until a poll, so these times tell it about models that load and unload between
-// polls, such as when a client sends keep_alive 0. Keep RUNNER_STARTED_RE the same in both agents.
+// polls, such as when a client sends keep_alive 0. Keep RUNNER_STARTED_RE the same in the Windows agent.
 const RUNNER_STARTED_RE = /llama runner started in/;
 
 async function runnerStarts(since) {
@@ -468,7 +468,7 @@ async function runnerStarts(since) {
 //   [GIN] 2026/11/02 - 09:14:07 | 200 |  4.551040958s |   192.168.30.20 | POST     "/api/chat"
 // Only these fields are read; Ollama's log has no prompts or responses. A line that starts like one
 // but doesn't parse, such as from a newer Ollama, is counted as skipped rather than misread.
-// Keep this section the same in both agents.
+// Keep this section the same in the Windows agent.
 const GIN_PREFIX = "[GIN] ";
 const DURATION_MS = { h: 3600e3, m: 60e3, s: 1e3, ms: 1, "µs": 1e-3, us: 1e-3, ns: 1e-6 };
 /** Requests one call returns at most; the dashboard asks again from where it stopped. */
@@ -595,7 +595,7 @@ async function readRequests(since) {
 // The agent makes its own ECDSA key and a self-signed certificate for it. Node can't write X.509
 // certificates, and Windows has no openssl, so a minimal DER encoder builds one. The dashboard pins
 // the key (SHA-256 of its SPKI), not the certificate: the certificate never expires, and making a
-// new one from the same key needs no new pin. Keep this section the same in both agents.
+// new one from the same key needs no new pin. Keep this section the same in the Windows agent.
 function derLength(n) {
   if (n < 0x80) return Buffer.from([n]);
   const bytes = [];
